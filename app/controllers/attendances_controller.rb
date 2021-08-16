@@ -2,8 +2,8 @@ class AttendancesController < ApplicationController
   include AttendancesHelper
 
   before_action :set_one_month, only: :edit_one_month
-  before_action :set_user, only: [:edit_one_month, :update_one_month]
-  
+  before_action :set_user, only: [:edit_one_month, :update_one_month, :update]
+
   def edit_one_month
     @attendance = Attendance.find_by(user_id: @user)
 
@@ -13,7 +13,7 @@ class AttendancesController < ApplicationController
       @superiors[superior.name] = superior.id
     end
   end
-  
+
   def update_one_month
     if attendances_invalid?
       attendances_params.each do |id, item|
@@ -26,7 +26,7 @@ class AttendancesController < ApplicationController
           change_approval.save!
           change_approval.update(start_time: attendance.start_time, end_time: attendance.end_time, application_situation: 0)
         end
-          
+
         superiors = User.where.not(id: @user.id).superior
         @superiors = {}
         superiors.each do |superior|
@@ -43,10 +43,10 @@ class AttendancesController < ApplicationController
       redirect_to user_attendances_edit_one_month_path(@user, params[:date])
     end
   end
-   
+
   def update
     @attendance = Attendance.find(params[:id])
-    
+
     if @attendance.start_time.nil?
       if @attendance.update_attributes(start_time: Time.current.change(sec: 0))
         flash[:info] = "おはようございます！"
@@ -62,9 +62,9 @@ class AttendancesController < ApplicationController
     end
     redirect_to @user
   end
-  
+
   private
-  
+
   def set_user
     @user = User.find(params[:user_id])
   end
